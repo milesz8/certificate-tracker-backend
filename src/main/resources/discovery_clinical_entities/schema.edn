@@ -1,0 +1,96 @@
+{:scalars
+ {:ObjectId
+  {:parse :object-id
+   :serialize :id}}
+ 
+ :objects
+ {:Coding
+  {:description "A Coding is a representation of a defined concept using a symbol from a defined \"code system\""
+   :fields 
+   {:system {:type (non-null String)}
+    :version {:type (non-null String)}
+    :code {:type (non-null String)}
+    :display {:type String}
+    :userSelected {:type Boolean}}}
+
+  :CodeableConcept
+  {:description "A CodeableConcept represents a value that is usually supplied by providing a reference to one or more terminologies or ontologies but may also be defined by the provision of text. This is a common pattern in healthcare data."
+   :fields 
+   {:coding {:type (list (non-null :Coding))
+             :resolve :CodeableConcept/coding}
+    :text {:type String}}}
+
+  :ClinicalEntity
+  {:description "A ClinicalEntity represents a clinical fact which may be inferred from the contents of a clinical document."
+   :fields 
+   {:_id {:type ObjectId}
+    :version {:type String}
+    :identifier {:type (non-null String)}
+    :name {:type (non-null String)}
+    :finding {:type (non-null :CodeableConcept)
+              :resolve :ClinicalEntity/finding}
+    :query {:type (non-null String)}
+    :documentation {:type String}
+    :archived {:type Boolean}}}}
+ 
+ :input-objects
+ {:CodingInput
+  {:description "Input needed to create a Coding object"
+   :fields
+   {:system {:type (non-null String)}
+    :version {:type (non-null String)}
+    :code {:type (non-null String)}
+    :display {:type String :default-value nil}
+    :userSelected {:type Boolean :default-value false}}}
+
+  :CodeableConceptInput
+  {:description "Input needed to create a CodableConcept object"
+   :fields
+   {:coding {:type (list (non-null :CodingInput))}
+    :text {:type String :default-value nil}}}
+  
+  :ClinicalEntityInput
+  {:description "Input needed to create a ClinicalEntity object"
+   :fields
+   {:identifier {:type (non-null String)}
+    :name {:type (non-null String)}
+    :finding {:type (non-null :CodeableConceptInput)}
+    :query {:type (non-null String)}
+    :documentation {:type String :default-value nil}}}}
+
+ :queries
+ {:clinical_entities
+  {:type (list :ClinicalEntity)
+   :description "Access all ClinicalEntities."
+   :resolve :query/clinical-entities}}
+
+ :mutations
+ {:create_clinical_entity
+  {:type :ClinicalEntity
+   :description "Registers a new ClinicalEntity and returns the ClinicalEntity on success."
+   :args
+   {:clinicalEntity {:type (non-null :ClinicalEntityInput)}}
+   :resolve :mutation/register-clinical-entity}
+  
+  :register_coding_by_id
+  {:type :ObjectId
+   :description "Registers a new Coding with an existing ClinicalEntity by its _id."
+   :args
+   {:_id {:type (non-null :ObjectId)}
+    :newCoding {:type (non-null :CodingInput)}}
+   :resolve :mutation/register-coding-by-id}
+  
+  :update_archived_by_id
+  {:type ObjectId
+   :description "Updates archived field for a ClinicalEntity if given a valid _id."
+   :args
+   {:_id {:type (non-null ObjectId)}
+    :newArchivedValue {:type (non-null Boolean)}}
+   :resolve :mutation/update-archived-by-id}
+  
+  :delete_clinical_entity_by_id
+  {:type ObjectId
+   :description "Deletes a ClinicalEntity and stores it in history if given a valid _id."
+   :args
+   {:_id {:type (non-null ObjectId)}}
+   :resolve :mutation/delete-clinical-entity-by-id}}}

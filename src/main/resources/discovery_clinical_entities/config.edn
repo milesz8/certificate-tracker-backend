@@ -1,0 +1,28 @@
+{:duct.profile/base
+ {:duct.core/project-ns certificate-tracker-backend
+
+  :certificate-tracker-backend.mongo.migrations/clinical-entities-20200723163100
+  {:collection-opts #duct/resource "discovery_clinical_entities/mongo/clinical_entities_opts.edn"}
+
+  :certificate-tracker-backend.mongo.migrator/ragtime
+  {:database #ig/ref :duct.database/mongodb
+   :logger #ig/ref :duct/logger
+   :strategy :raise-error
+   :migrations [#ig/ref :certificate-tracker-backend.mongo.migrations/clinical-entities-20200723163100]}
+
+  :certificate-tracker-backend.graphql/resolvers
+  {:datastore #ig/ref :duct.database/mongodb}
+  
+  :certificate-tracker-backend.graphql/handler
+  {:schema #duct/resource "discovery_clinical_entities/schema.edn"
+   :resolvers #ig/ref :certificate-tracker-backend.graphql/resolvers}
+
+  :certificate-tracker-backend/handler
+  {:graphql-handler #ig/ref :certificate-tracker-backend.graphql/handler}
+
+  :duct.server.http/jetty
+  {:handler #ig/ref :certificate-tracker-backend/handler}}
+
+ :duct.profile/dev   #duct/include "dev"
+ :duct.profile/local #duct/include "local"
+ :duct.profile/prod  {}}

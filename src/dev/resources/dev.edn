@@ -1,0 +1,16 @@
+{:duct.core/environment :development
+
+ :duct.logger.timbre/brief
+ {:min-level :debug}
+
+ :duct.logger/timbre
+ {:appenders {:brief #ig/ref :duct.logger.timbre/brief}}
+
+ :certificate-tracker-backend.testcontainers/mongodb
+ {:database "dev-database"}
+
+ :duct.database.mongodb/monger
+ #ig/ref :certificate-tracker-backend.testcontainers/mongodb
+ 
+ :duct.server.http/jetty
+ {:join? false :port 3000}}
