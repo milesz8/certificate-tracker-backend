@@ -28,8 +28,8 @@
   {:type :Home
    :description "Registers a new Home and returns the Home on success."
    :args
-   {:home {:type (non-null :Home)}}
-   :resolve :mutations/register-home}
+   {:home {:type (non-null :HomeInput)}}
+   :resolve :mutation/register-home}
   
   :update_archived_by_id
   {:type ObjectId

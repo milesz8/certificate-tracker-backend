@@ -32,15 +32,12 @@
 (duct/load-hierarchy)
 
 (defn read-config []
-  (duct/read-config (io/resource "discovery_clinical_entities/config.edn")))
-
-(defn test []
-  (eftest/run-tests (eftest/find-tests "src/test/clj")))
+  (duct/read-config (io/resource "certificate_tracker_backend/config.edn")))
 
 (def profiles
   [:duct.profile/dev :duct.profile/local])
 
-(clojure.tools.namespace.repl/set-refresh-dirs "src/main/clj" "src/dev/clj" "src/test/clj")
+(clojure.tools.namespace.repl/set-refresh-dirs "src/main/clj" "src/dev/clj")
 
 (when (io/resource "local.clj")
   (load "local"))

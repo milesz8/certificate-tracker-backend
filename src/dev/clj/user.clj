@@ -1,5 +1,7 @@
 (ns user)
 
+(defn a [] "a")
+
 (defn dev
   "Load and switch to the 'dev' namespace."
   []
