@@ -1,0 +1,47 @@
+{:scalars
+ {:ObjectId
+  {:parse :object-id
+   :serialize :id}}
+
+ :objects
+ {:Home
+  {:description "A home is representaion of a foster home"
+   :fields
+   {:_id {:type :ObjectId}
+    :lastName {:type (non-null String)}
+    :archived {:type Boolean}}}}
+ 
+ :input-objects
+ {:HomeInput
+  {:description "Input fields needed to create a home"
+   :fields
+   {:lastName {:type (non-null String)}}}}
+
+ :queries
+ {:homes
+  {:type (list :Home)
+   :description "Access all Homes"
+   :resolve :query/homes}}
+
+ :mutations
+ {:create_home
+  {:type :Home
+   :description "Registers a new Home and returns the Home on success."
+   :args
+   {:home {:type (non-null :Home)}}
+   :resolve :mutations/register-home}
+  
+  :update_archived_by_id
+  {:type ObjectId
+   :description "Updates archived field for a Home if given a valid _id."
+   :args
+   {:_id {:type (non-null ObjectId)}
+    :newArchivedValue {:type (non-null Boolean)}}
+   :resolve :mutation/update-archived-by-id}
+  
+  :delete_home_by_id
+  {:type ObjectId
+   :description "Deletes a Home and stores it in history if given a valid _id."
+   :args
+   {:_id {:type (non-null ObjectId)}}
+   :resolve :mutation/delete-home-by-id}}}

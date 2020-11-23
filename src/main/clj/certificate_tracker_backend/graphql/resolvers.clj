@@ -1,6 +1,6 @@
 (ns certificate-tracker-backend.graphql.resolvers
   (:require [com.walmartlabs.lacinia.resolve :as resolver]
-            [certificate-tracker-backend.boundary.clinical-entity :as clinical-entity]
+            [certificate-tracker-backend.boundary.home :as home]
             [integrant.core :as ig]
             [taoensso.timbre :as log])
   (:import (java.time OffsetDateTime)
@@ -18,49 +18,34 @@
            (let [{:keys [message] :or {message (str exception)}} (ex-data exception)]
              (resolver/resolve-as nil {:message message}))))))
 
-(defn get-clinical-entities
+(defn get-homes
   [datastore _ _ _]
-  (clinical-entity/get-clinical-entities datastore))
+  (home/get-homes datastore))
 
-(defn get-finding
-  [_ _ value]
-  (:finding value))
-
-(defn get-coding
-  [_ _ value]
-  (:coding value))
-
-(defn register-clinical-entity!
-  [datastore _ {:keys [clinicalEntity]} _]
+(defn register-home!
+  [datastore _ {:keys [home]} _]
   (let [date-time-now (.. (OffsetDateTime/now) 
                           (format (DateTimeFormatter/ISO_OFFSET_DATE_TIME)))
-        clinical-entity-with-defaults (merge {:version date-time-now :archived false}
-                                             clinicalEntity)]
-    (clinical-entity/insert-clinical-entity! datastore clinical-entity-with-defaults)))
+        home-with-defaults (merge {:version date-time-now :archived false}
+                                             home)]
+    (home/insert-home! datastore home-with-defaults)))
 
 (defn update-archived-by-id!
   [datastore _ {:keys [_id newArchivedValue]} _]
-  (clinical-entity/update-archived-by-id! datastore _id newArchivedValue))
+  (home/update-archived-by-id! datastore _id newArchivedValue))
 
-(defn delete-clinical-entity-by-id!
+(defn delete-home-by-id!
   [datastore _ {:keys [_id]} _]
-  (clinical-entity/delete-clinical-entity-by-id! datastore _id))
-
-(defn register-coding-by-id!
-  [datastore _ {:keys [_id newCoding]} _]
-  (clinical-entity/insert-coding-by-id! datastore _id newCoding))
+  (home/delete-home-by-id! datastore _id))
 
 (defmethod ig/init-key :certificate-tracker-backend.graphql/resolvers
   [_ {:keys [datastore]}]
   (log/info ::initializing)
   (let [resolvers
-        {:query/clinical-entities (partial get-clinical-entities datastore)
-         :mutation/register-clinical-entity (partial register-clinical-entity! datastore)
-         :mutation/register-coding-by-id (partial register-coding-by-id! datastore)
+        {:query/homes (partial get-homes datastore)
+         :mutation/register-home (partial register-home! datastore)
          :mutation/update-archived-by-id (partial update-archived-by-id! datastore)
-         :mutation/delete-clinical-entity-by-id (partial delete-clinical-entity-by-id! datastore)
-         :CodeableConcept/coding get-coding
-         :ClinicalEntity/finding get-finding}]
+         :mutation/delete-home-by-id (partial delete-home-by-id! datastore)}]
     (reduce-kv (fn [m k v] (assoc m k (wrap-resolver-exceptions v)))
                (empty resolvers)
                resolvers)))
